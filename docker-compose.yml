@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  postgresql:
+    image: postgres
+    container_name: postgres_container
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
+      - ./db_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  currency:
+    image: currency:1.0.0-test
+    container_name: currency_container
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+    - ./.env:/.env
+    depends_on:
+      postgresql:
+        condition: service_started
+   
+
